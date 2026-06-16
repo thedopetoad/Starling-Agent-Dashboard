@@ -14,15 +14,20 @@ moves funds or touches key material.
 ## Quick start
 
 ```bash
-pip install starling-dashboard      # or: pip install mcp rich, then run from a clone
+# install straight from GitHub (no clone needed):
+pip install git+https://github.com/thedopetoad/Starling-Agent-Dashboard
 
-# point it at your MCP server (same command as your mcp.json) and watch:
+# …or from a clone:
+#   git clone https://github.com/thedopetoad/Starling-Agent-Dashboard
+#   cd Starling-Agent-Dashboard && pip install -e .
+
+# watch your agent — by default it launches the MCP straight from GitHub:
 starling-dashboard
 
-# during local development, launch the MCP from a build:
+# point at a local MCP build instead:
 starling-dashboard --mcp "node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
 
-# one frame and exit (handy for CI / a quick check):
+# one frame and exit (handy for a quick check / CI):
 starling-dashboard --once
 ```
 
@@ -50,7 +55,7 @@ It launches the MCP exactly the way your agent does, then polls `auth_check`,
 
 | flag | default | meaning |
 |---|---|---|
-| `--mcp "<cmd>"` | `npx -y @starling/execution-mcp` | command that launches the MCP server (or set `STARLING_MCP_CMD`) |
+| `--mcp "<cmd>"` | `npx -y github:thedopetoad/Starling-MCP` | command that launches the MCP server (or set `STARLING_MCP_CMD`) |
 | `--interval <s>` | `5` | refresh interval |
 | `--once` | off | render one frame and exit |
 | `--key sk_live_…` | `$STARLING_KEY` | analytics MCP key (forwarded to the server) |

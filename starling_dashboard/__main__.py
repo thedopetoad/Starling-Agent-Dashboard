@@ -20,7 +20,7 @@ from . import __version__
 from .client import fetch_snapshot, server_params
 from .ui import render
 
-DEFAULT_MCP = "npx -y @starling/execution-mcp"
+DEFAULT_MCP = "npx -y github:thedopetoad/Starling-MCP"
 
 
 async def _run(args: argparse.Namespace) -> int:
