@@ -12,7 +12,9 @@ address, to `~/.starling/treasury.json`) when you run `set-treasury` — never a
 transaction, never key material.
 
 > **Prerequisite:** Python 3.10+ and the Starling MCP server reachable by the
-> launch command (default `npx -y @starling/execution-mcp`, which needs Node).
+> launch command (default `npx -y github:thedopetoad/Starling-MCP`, which needs
+> Node + git). Note: `set-treasury` writes a local file and does **not** need the
+> MCP — only the live view launches it.
 
 ## Quick start
 
