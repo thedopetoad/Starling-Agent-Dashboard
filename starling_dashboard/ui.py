@@ -17,6 +17,50 @@ def _short(addr: str | None) -> str:
     return addr if len(addr) <= 20 else f"{addr[:8]}…{addr[-6:]}"
 
 
+def _source_badge(source: str) -> Text:
+    if source == "keystore":
+        return Text("keystore", style="green")
+    if source == "dashboard":
+        return Text("dashboard", style=ACCENT)
+    if source == "conflict":
+        return Text("CONFLICT", style="bold red")
+    return Text("none", style="grey50")
+
+
+def _treasury_view(snap: Snapshot):
+    """The withdraw destination(s) the MCP resolved — keystore-sealed and/or
+    human-pasted via `set-treasury`. A 'none' state nudges the user to pin one."""
+    by = (snap.treasury or {}).get("byChain") or {}
+    if not by:
+        return Text.assemble(
+            ("withdraw →  ", "dim"),
+            ("none set", "grey50"),
+            ("    run ", "dim"),
+            ("starling-dashboard set-treasury", "white"),
+            (" to pin one", "dim"),
+        )
+    table = Table(
+        expand=True,
+        border_style="grey37",
+        header_style=f"bold {ACCENT}",
+        title="Withdraw destination",
+        title_style="dim",
+        title_justify="left",
+    )
+    table.add_column("Chain", style="white", no_wrap=True)
+    table.add_column("Source")
+    table.add_column("Address", style="dim")
+    table.add_column("Commit", style="dim")
+    for chain, info in by.items():
+        table.add_row(
+            chain,
+            _source_badge(info.get("source", "?")),
+            _short(info.get("address")),
+            info.get("commitment") or "—",
+        )
+    return table
+
+
 def render(snap: Snapshot | None) -> Panel:
     title = Text("◆ Starling — Agent Dashboard", style=f"bold {ACCENT}")
 
@@ -66,5 +110,7 @@ def render(snap: Snapshot | None) -> Panel:
     grid.add_row(header)
     grid.add_row(Text())
     grid.add_row(table)
+    grid.add_row(Text())
+    grid.add_row(_treasury_view(snap))
     grid.add_row(footer)
     return Panel(grid, title=title, border_style=ACCENT, padding=(1, 2))

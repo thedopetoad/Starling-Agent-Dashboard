@@ -26,6 +26,8 @@ class Snapshot:
     unlock_mode: str = "?"
     venues: dict[str, dict[str, Any]] = field(default_factory=dict)
     addresses: dict[str, Any] = field(default_factory=dict)
+    # auth_check.treasury: { sealed, withdrawsEnabled, byChain:{chain:{address,source,commitment}} }
+    treasury: dict[str, Any] | None = None
     ping_ms: float | None = None
     error: str | None = None
 
@@ -58,6 +60,7 @@ async def fetch_snapshot(session: ClientSession) -> Snapshot:
         snap.key_source = auth.get("keySource", "?")
         snap.unlock_mode = auth.get("unlockMode", "?")
         snap.venues = auth.get("venues", {})
+        snap.treasury = auth.get("treasury")
 
         snap.addresses = json.loads(_text(await session.call_tool("get_wallet_addresses", {})))
 

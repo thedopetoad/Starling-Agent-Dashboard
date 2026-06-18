@@ -5,8 +5,11 @@ connects to the [Starling MCP server](https://github.com/thedopetoad/Starling-MC
 over stdio and renders its live state in your terminal. Fork it, embed it, or
 extend it as the MCP grows new analytics tools.
 
-It's **read-only** — it reads status and public addresses from the MCP and never
-moves funds or touches key material.
+It's **read-only with respect to funds and keys** — it reads status and public
+addresses from the MCP and never signs, moves funds, or touches key material. The
+one thing it writes is *your* human-confirmed **withdraw destination** (a public
+address, to `~/.starling/treasury.json`) when you run `set-treasury` — never a
+transaction, never key material.
 
 > **Prerequisite:** Python 3.10+ and the Starling MCP server reachable by the
 > launch command (default `npx -y @starling/execution-mcp`, which needs Node).
@@ -31,11 +34,35 @@ starling-dashboard --mcp "node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
 starling-dashboard --once
 ```
 
+## Set your withdraw destination
+
+Pin the wallet your funds withdraw/sweep home to — once, by **pasting it here**, not
+into chat or a hand-edited `.env`:
+
+```bash
+starling-dashboard set-treasury                 # prompts for chain + address
+starling-dashboard set-treasury --chain polygon # skip the chain prompt
+```
+
+You paste the address, the tool validates it and shows a 4-byte **commitment**, you
+confirm, and it's written to `~/.starling/treasury.json` (honoring `STARLING_DIR`)
+— the same file the MCP reads. The point is *transcription integrity*: your exact
+bytes reach disk, and the trading agent never re-types the 40/44-char string into a
+config (where one flipped character would strand a sweep). The agent can *read* the
+destination and route you here, but it **cannot set or change it**.
+
+> Verify the commitment against your wallet / recovery sheet — **not** against
+> anything the agent printed in chat. This is a transcription check, not a security
+> control: a code-exec'd agent could still rewrite the file (the same honest ceiling
+> as the MCP's keystore-sealed treasury). The live view shows the current
+> destination, its source (`keystore` / `dashboard` / red `CONFLICT`), and commitment.
+
 It launches the MCP exactly the way your agent does, then polls `auth_check`,
 `get_wallet_addresses`, and `ping`, showing:
 
 - **network** (testnet / mainnet) and **key source** (keystore / env / file)
 - per-venue **signer status** and **public address**
+- your **withdraw destination** per chain (address, source, commitment)
 - round-trip **ping**
 
 ```
