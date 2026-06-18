@@ -48,8 +48,10 @@ You paste the address, the tool validates it and shows a 4-byte **commitment**, 
 confirm, and it's written to `~/.starling/treasury.json` (honoring `STARLING_DIR`)
 — the same file the MCP reads. The point is *transcription integrity*: your exact
 bytes reach disk, and the trading agent never re-types the 40/44-char string into a
-config (where one flipped character would strand a sweep). The agent can *read* the
-destination and route you here, but it **cannot set or change it**.
+config (where one flipped character would strand a sweep). This is the **preferred**
+way to set the destination. (If you have no dashboard, a file-capable agent can write
+that file for you as a fallback, from an address you give it — then read it back so
+you confirm the commitment. The MCP itself exposes no address-setting tool.)
 
 > Verify the commitment against your wallet / recovery sheet — **not** against
 > anything the agent printed in chat. This is a transcription check, not a security
