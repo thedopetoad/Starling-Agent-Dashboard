@@ -1,7 +1,7 @@
 # Starling Agent Dashboard
 
 **Watch your trading agent live on your desktop.** A small, open example that
-connects to the [Starling MCP server](https://github.com/thedopetoad/Starling-MCP)
+connects to the [Starling MCP](https://github.com/thedopetoad/Starling-MCP)
 over stdio and renders its live state in your terminal. Fork it, embed it, or
 extend it as the MCP grows new analytics tools.
 
@@ -11,29 +11,36 @@ one thing it writes is *your* human-confirmed **withdraw destination** (a public
 address, to `~/.starling/treasury.json`) when you run `set-treasury` — never a
 transaction, never key material.
 
-> **Prerequisite:** Python 3.10+ and the Starling MCP server reachable by the
-> launch command (default `npx -y github:thedopetoad/Starling-MCP`, which needs
-> Node + git). Note: `set-treasury` writes a local file and does **not** need the
-> MCP — only the live view launches it.
+> **Prerequisite:** Python 3.10+. The live view also needs your local Starling
+> MCP build reachable by the launch command — clone
+> [Starling-MCP](https://github.com/thedopetoad/Starling-MCP), run `npm install`
+> (its prepare script builds `dist/`), then point `--mcp` at the built bin.
+> Note: `set-treasury` writes a local file and does **not** need the MCP — only
+> the live view launches it.
 
 ## Quick start
 
+Clone and install (editable, so your edits take effect immediately):
+
 ```bash
-# install straight from GitHub (no clone needed):
-pip install git+https://github.com/thedopetoad/Starling-Agent-Dashboard
+git clone https://github.com/thedopetoad/Starling-Agent-Dashboard
+cd Starling-Agent-Dashboard
+pip install -e .
+```
 
-# …or from a clone:
-#   git clone https://github.com/thedopetoad/Starling-Agent-Dashboard
-#   cd Starling-Agent-Dashboard && pip install -e .
+Then watch your agent. The live view needs an explicit path to your local
+Starling MCP build (replace `/path/to/Starling-MCP` with wherever you cloned it):
 
-# watch your agent — by default it launches the MCP straight from GitHub:
-starling-dashboard
-
-# point at a local MCP build instead:
+```bash
+# point at your local MCP build:
 starling-dashboard --mcp "node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
 
+# …or set it once and just run `starling-dashboard`:
+export STARLING_MCP_CMD="node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
+starling-dashboard
+
 # one frame and exit (handy for a quick check / CI):
-starling-dashboard --once
+starling-dashboard --once --mcp "node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
 ```
 
 ## Set your withdraw destination
@@ -86,10 +93,10 @@ It launches the MCP exactly the way your agent does, then polls `auth_check`,
 
 | flag | default | meaning |
 |---|---|---|
-| `--mcp "<cmd>"` | `npx -y github:thedopetoad/Starling-MCP` | command that launches the MCP server (or set `STARLING_MCP_CMD`) |
+| `--mcp "<cmd>"` | *required* (or `STARLING_MCP_CMD`) | command that launches your local Starling MCP build, e.g. `node /path/to/Starling-MCP/dist/bin/starling-mcp.js`. Not needed by `set-treasury`. |
 | `--interval <s>` | `5` | refresh interval |
 | `--once` | off | render one frame and exit |
-| `--key sk_live_…` | `$STARLING_KEY` | analytics MCP key (forwarded to the server) |
+| `--key sk_live_…` | `$STARLING_KEY` | analytics MCP key (forwarded to the MCP) |
 
 Any `STARLING_*` environment variables (key source, unlock mode, network) are
 passed through to the spawned MCP, so configure the server once and the

@@ -1,7 +1,7 @@
 [project]
 name = "starling-dashboard"
 version = "0.1.0"
-description = "Watch your Starling trading agent live — an open example desktop dashboard for the Starling MCP server."
+description = "Watch your Starling trading agent live — an open example desktop dashboard for the Starling MCP."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -16,7 +16,7 @@ starling-dashboard = "starling_dashboard.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/thedopetoad/Starling-Agent-Dashboard"
-"MCP server" = "https://github.com/thedopetoad/Starling-MCP"
+"Starling MCP" = "https://github.com/thedopetoad/Starling-MCP"
 "Wallet setup" = "https://github.com/thedopetoad/Agent-Wallet-Setup"
 
 [build-system]

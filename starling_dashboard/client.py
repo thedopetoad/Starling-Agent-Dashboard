@@ -1,8 +1,9 @@
-"""Talk to the Starling MCP server over stdio using the official MCP client.
+"""Talk to the Starling MCP over stdio using the official MCP client.
 
-The dashboard is an MCP *host*: it launches the server (the same `command` your
-agent uses in mcp.json) and calls its read-only tools. The server signs locally
-and never exposes key material — we only read status + public addresses here.
+The dashboard is an MCP *host*: it launches the MCP (the same `command` your
+agent uses in the mcp.json "mcpServers" block) and calls its read-only tools.
+The MCP signs locally and never exposes key material — we only read status +
+public addresses here.
 """
 
 from __future__ import annotations
@@ -43,7 +44,7 @@ def _text(result: Any) -> str:
 
 def server_params(command: str, env_overrides: dict[str, str] | None = None) -> StdioServerParameters:
     """Build the stdio launch params. Inherits the current environment (so PATH,
-    npx/node, and any STARLING_* the server needs are present) plus overrides."""
+    node, and any STARLING_* the MCP needs are present) plus overrides."""
     parts = shlex.split(command, posix=(os.name != "nt"))
     if not parts:
         raise ValueError("empty MCP command")
@@ -52,7 +53,7 @@ def server_params(command: str, env_overrides: dict[str, str] | None = None) -> 
 
 
 async def fetch_snapshot(session: ClientSession) -> Snapshot:
-    """Call the server's read-only tools and assemble one frame of state."""
+    """Call the MCP's read-only tools and assemble one frame of state."""
     snap = Snapshot()
     try:
         auth = json.loads(_text(await session.call_tool("auth_check", {})))

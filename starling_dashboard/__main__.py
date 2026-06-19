@@ -1,7 +1,7 @@
 """`starling-dashboard` — a live terminal view of your Starling agent.
 
-Launches the Starling MCP server (the same command from your mcp.json), then
-polls its read-only tools and renders them. Read-only: it never moves funds.
+Launches the Starling MCP (the same command from your mcp.json), then polls its
+read-only tools and renders them. Read-only: it never moves funds.
 """
 
 from __future__ import annotations
@@ -20,13 +20,25 @@ from . import __version__
 from .client import fetch_snapshot, server_params
 from .ui import render
 
-DEFAULT_MCP = "npx -y github:thedopetoad/Starling-MCP"
+# Example local-build launch command — clone Starling-MCP, run `npm install`
+# (its prepare script builds to dist/), then point --mcp at the built bin.
+EXAMPLE_MCP = 'node /path/to/Starling-MCP/dist/bin/starling-mcp.js'
+
+NO_MCP_HELP = (
+    'No MCP command. Point me at your local Starling MCP build:\n'
+    f'  --mcp "{EXAMPLE_MCP}"\n'
+    "(or set STARLING_MCP_CMD). Clone Starling-MCP, run `npm install` to build "
+    "dist/, then pass the path to the built bin."
+)
 
 
 async def _run(args: argparse.Namespace) -> int:
+    console = Console()
+    if not args.mcp:
+        console.print(f"[yellow]{NO_MCP_HELP}[/]")
+        return 2
     overrides = {"STARLING_KEY": args.key} if args.key else {}
     params = server_params(args.mcp, overrides)
-    console = Console()
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -126,8 +138,9 @@ def main() -> None:
     )
     p.add_argument(
         "--mcp",
-        default=os.environ.get("STARLING_MCP_CMD", DEFAULT_MCP),
-        help=f'command that launches the Starling MCP server (default: "{DEFAULT_MCP}")',
+        default=os.environ.get("STARLING_MCP_CMD"),
+        help=f'command that launches your local Starling MCP build, e.g. "{EXAMPLE_MCP}" '
+        "(or set STARLING_MCP_CMD). Required for the live view; not needed by set-treasury.",
     )
     p.add_argument("--interval", type=float, default=5.0, help="refresh seconds (default 5)")
     p.add_argument("--once", action="store_true", help="render a single frame and exit")
