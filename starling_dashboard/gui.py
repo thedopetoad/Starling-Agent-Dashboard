@@ -307,6 +307,9 @@ class Dashboard:
         for c in self.pos_body.winfo_children():
             c.destroy()
         positions = st.positions
+        if "positions" not in st.raw:
+            tk.Label(self.pos_body, text="positions not reported by this MCP build", font=SANS, fg=GREY, bg=PANEL, anchor="w").pack(fill="x")
+            return
         if not positions:
             tk.Label(self.pos_body, text="flat — no open positions", font=SANS, fg=GREY, bg=PANEL, anchor="w").pack(fill="x")
             return
