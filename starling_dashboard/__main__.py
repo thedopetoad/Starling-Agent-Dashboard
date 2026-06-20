@@ -155,10 +155,21 @@ def main() -> None:
     st.add_argument("--chain", choices=["polygon", "solana", "hyperliquid"], help="chain to set (prompted if omitted)")
     st.add_argument("--address", help="non-interactive: the address (requires --chain; normally you paste interactively)")
 
+    sub.add_parser(
+        "gui",
+        help="open the desktop window instead of the terminal view (same as the run-dashboard launchers)",
+    )
+
     args = p.parse_args()
 
     if getattr(args, "command", None) == "set-treasury":
         sys.exit(_run_set_treasury(args))
+
+    if getattr(args, "command", None) == "gui":
+        from .gui import main as gui_main
+
+        gui_main()
+        return
 
     try:
         sys.exit(asyncio.run(_run(args)))

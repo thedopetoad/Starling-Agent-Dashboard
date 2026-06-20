@@ -42,14 +42,22 @@ def _text(result: Any) -> str:
     return "{}"
 
 
-def server_params(command: str, env_overrides: dict[str, str] | None = None) -> StdioServerParameters:
-    """Build the stdio launch params. Inherits the current environment (so PATH,
-    node, and any STARLING_* the MCP needs are present) plus overrides."""
-    parts = shlex.split(command, posix=(os.name != "nt"))
+def server_params_parts(parts: list[str], env_overrides: dict[str, str] | None = None) -> StdioServerParameters:
+    """Build stdio launch params from already-split argv. Use this when you have a
+    clean argv (e.g. the GUI's auto-detected ``["node", "<abs path>"]``) so a path
+    containing spaces or backslashes never round-trips through shlex quoting."""
     if not parts:
         raise ValueError("empty MCP command")
     env = {**os.environ, **(env_overrides or {})}
     return StdioServerParameters(command=parts[0], args=parts[1:], env=env)
+
+
+def server_params(command: str, env_overrides: dict[str, str] | None = None) -> StdioServerParameters:
+    """Build the stdio launch params from a command string. Inherits the current
+    environment (so PATH, node, and any STARLING_* the MCP needs are present) plus
+    overrides."""
+    parts = shlex.split(command, posix=(os.name != "nt"))
+    return server_params_parts(parts, env_overrides)
 
 
 async def fetch_snapshot(session: ClientSession) -> Snapshot:

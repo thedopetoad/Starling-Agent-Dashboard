@@ -1,3 +1,9 @@
 # Cross-platform line endings: store and check out text as LF everywhere, so the
 # package behaves identically on macOS/Linux and Windows.
 * text=auto eol=lf
+
+# Windows batch files MUST be CRLF — cmd.exe can mis-handle goto/labels in an
+# LF-only .bat. The .command/.sh launchers stay LF (the default above) so their
+# shebang/bash parsing works.
+*.bat text eol=crlf
+*.cmd text eol=crlf

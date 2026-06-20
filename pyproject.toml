@@ -13,6 +13,7 @@ dependencies = [
 
 [project.scripts]
 starling-dashboard = "starling_dashboard.__main__:main"
+starling-dashboard-gui = "starling_dashboard.gui:main"
 
 [project.urls]
 Homepage = "https://github.com/thedopetoad/Starling-Agent-Dashboard"

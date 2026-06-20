@@ -2,8 +2,9 @@
 
 **Watch your trading agent live on your desktop.** A small, open example that
 connects to the [Starling MCP](https://github.com/thedopetoad/Starling-MCP)
-over stdio and renders its live state in your terminal. Fork it, embed it, or
-extend it as the MCP grows new analytics tools.
+over stdio and renders its live state — as a click-to-open **desktop window**, or
+in your terminal. Fork it, embed it, or extend it as the MCP grows new analytics
+tools.
 
 It's **read-only with respect to funds and keys** — it reads status and public
 addresses from the MCP and never signs, moves funds, or touches key material. The
@@ -18,21 +19,42 @@ transaction, never key material.
 > Note: `set-treasury` writes a local file and does **not** need the MCP — only
 > the live view launches it.
 
-## Quick start
+## Quick start — just double-click (desktop window)
 
-Clone and install (editable, so your edits take effect immediately):
+No terminal, no `pip`, no flags. Download or clone this repo, then:
+
+- **Windows** — double-click **`run-dashboard.bat`**
+- **macOS** — double-click **`run-dashboard.command`** (first time: right-click → Open)
+- **Linux** — run **`./run-dashboard.sh`** (needs Tk: `sudo apt install python3-tk`)
+
+The launcher sets up a private virtual environment and installs the two
+dependencies the first time (~30s), then opens the window. After that it just
+opens instantly. The only prerequisite is **Python 3.10+** — if it's missing, the
+launcher points you at the download page.
+
+**Finding your MCP is automatic.** On first launch the window looks for a sibling
+`Starling-MCP` build (e.g. `../Starling-MCP/dist/bin/starling-mcp.js`) and, if it
+finds one, remembers it so future launches are zero-config. If it can't find one,
+the window asks you to pick the built `starling-mcp.js` once (Browse…) and saves
+your choice to `~/.starling/dashboard.json`. You can change it any time under
+**Settings…**. (Clone [Starling-MCP](https://github.com/thedopetoad/Starling-MCP)
+and run `npm install` first — its prepare script builds `dist/`.)
+
+## Terminal version
+
+Prefer the terminal? Install it as a package and run the CLI:
 
 ```bash
 git clone https://github.com/thedopetoad/Starling-Agent-Dashboard
 cd Starling-Agent-Dashboard
-pip install -e .
+pip install -e .                      # editable: your edits take effect immediately
 ```
 
-Then watch your agent. The live view needs an explicit path to your local
-Starling MCP build (replace `/path/to/Starling-MCP` with wherever you cloned it):
-
 ```bash
-# point at your local MCP build:
+# the desktop window, from the CLI:
+starling-dashboard gui
+
+# the live terminal view — point at your local MCP build:
 starling-dashboard --mcp "node /path/to/Starling-MCP/dist/bin/starling-mcp.js"
 
 # …or set it once and just run `starling-dashboard`:
@@ -46,7 +68,8 @@ starling-dashboard --once --mcp "node /path/to/Starling-MCP/dist/bin/starling-mc
 ## Set your withdraw destination
 
 Pin the wallet your funds withdraw/sweep home to — once, by **pasting it here**, not
-into chat or a hand-edited `.env`:
+into chat or a hand-edited `.env`. In the desktop window, click **“Set withdraw
+destination…”**; from the terminal:
 
 ```bash
 starling-dashboard set-treasury                 # prompts for chain + address
