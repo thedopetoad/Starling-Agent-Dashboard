@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="referrer" content="no-referrer" />
+<title>Starling — Agent Dashboard</title>
+<style>
+  :root{
+    --bg:#0a111e; --panel:#0f1a2e; --panel2:#0c1626; --border:#22324a;
+    --text:#e6edf6; --dim:#8aa0b8; --accent:#86c8ff; --green:#4ade80;
+    --red:#f8717a; --yellow:#fbbf24; --grey:#6b7a90;
+    --halt:#3a1620; --active:#11331f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(1100px 560px at 82% -12%, #15243f 0%, transparent 60%), var(--bg);
+       color:var(--text);font:14px/1.5 "Segoe UI",system-ui,Arial,sans-serif;
+       display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+  code,.mono{font-family:Consolas,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  a{color:var(--accent)}
+  header{display:flex;align-items:center;gap:10px;padding:16px 22px 8px}
+  header .logo{font-weight:700;font-size:19px;background:linear-gradient(90deg,#a9dbff,#6aa8ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header .sub{color:var(--dim);font-size:13px;letter-spacing:.02em}
+  header .ver{margin-left:auto;color:var(--grey);font-size:12px;border:1px solid var(--border);padding:2px 9px;border-radius:999px}
+  .hb{padding:0 22px 10px}
+  #hb{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);
+    background:var(--panel);border:1px solid var(--border);padding:5px 12px;border-radius:999px}
+  .banner{margin:0 22px 12px;border:1px solid var(--border);border-radius:12px;background:var(--panel);
+    text-align:center;font-weight:700;font-size:15px;letter-spacing:.04em;padding:15px;color:var(--dim);
+    transition:background .2s,color .2s}
+  .tabs{display:flex;gap:2px;padding:0 22px;border-bottom:1px solid var(--border)}
+  .tabs button{position:relative;background:transparent;color:var(--dim);border:0;padding:11px 18px;
+    cursor:pointer;font-size:14px;font-weight:500;transition:color .15s}
+  .tabs button:hover{color:var(--text)}
+  .tabs button.on{color:var(--accent)}
+  .tabs button.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--accent);border-radius:2px}
+  main{flex:1;overflow-y:auto;padding:14px 22px 18px}
+  main::-webkit-scrollbar{width:10px}
+  main::-webkit-scrollbar-thumb{background:#1c2c46;border-radius:6px;border:2px solid var(--bg)}
+  .card{border:1px solid var(--border);border-radius:14px;background:var(--panel);margin-bottom:14px;
+    overflow:hidden;box-shadow:0 8px 24px -18px #000}
+  .card>h3{margin:0;padding:13px 18px 0;font-size:11px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.08em}
+  .card .body{padding:14px 18px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .muted{color:var(--dim)} .grey{color:var(--grey)} .green{color:var(--green)}
+  .red{color:var(--red)} .yellow{color:var(--yellow)}
+  button.btn{border:0;border-radius:9px;padding:10px 15px;cursor:pointer;font-size:13px;font-weight:500;
+    color:var(--text);background:#22344f;transition:transform .08s,filter .15s,background .15s}
+  button.btn:hover{filter:brightness(1.14)}
+  button.btn:active{transform:translateY(1px)}
+  button.danger{background:linear-gradient(180deg,#e5455c,#cf2c43);color:#fff;font-weight:600}
+  button.resume{background:linear-gradient(180deg,#52e08a,#3ec977);color:#06210f;font-weight:600}
+  button.ghost{background:var(--panel2);color:var(--accent);border:1px solid var(--border)}
+  button.warn{background:#22344f}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--grey);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    padding:6px 8px;border-bottom:1px solid var(--border)}
+  td{padding:8px 8px;border-bottom:1px solid #16243a}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:#13223a}
+  td.r,th.r{text-align:right}
+  .stats{display:flex;gap:14px;flex-wrap:wrap}
+  .stat{flex:1;min-width:170px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .stat .k{color:var(--grey);font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+  .big{font-size:28px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  input.addr{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);
+    padding:9px 11px;font-family:Consolas,monospace;font-size:13px;transition:border-color .15s,box-shadow .15s}
+  input.addr:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(134,200,255,.15)}
+  select{background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 11px;cursor:pointer}
+  .note{font-family:Consolas,monospace;font-size:12px;color:var(--dim);margin:4px 0 8px;min-height:16px}
+  .destrow{display:grid;grid-template-columns:96px 1fr auto auto;gap:8px;align-items:center}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px}
+  .clip{cursor:pointer;border-bottom:1px dotted transparent}
+  .clip:hover{border-bottom-color:var(--dim)}
+  footer{padding:10px 22px 16px;color:var(--dim);font-size:13px;min-height:22px}
+  .hidden{display:none}
+  @media(max-width:560px){.stat{min-width:100%}}
+</style>
+</head>
+<body>
+  <header>
+    <span class="logo">◆ Starling</span>
+    <span class="sub">Agent Dashboard</span>
+    <span class="ver" id="ver"></span>
+  </header>
+  <div class="hb"><span id="hb">connecting…</span></div>
+  <div class="banner" id="banner">…</div>
+  <div class="tabs">
+    <button data-tab="control" class="on">Control</button>
+    <button data-tab="analytics">Analytics</button>
+    <button data-tab="wallets">Wallet States</button>
+  </div>
+
+  <main>
+    <!-- CONTROL -->
+    <section id="tab-control">
+      <div class="card"><h3>Emergency stop</h3><div class="body row">
+        <button id="haltBtn" class="btn danger" onclick="toggleHalt()">■ Halt all trading</button>
+        <span class="muted">stops new/increasing trades; closes &amp; withdraws still allowed</span>
+      </div></div>
+
+      <div class="card"><h3>Close positions</h3><div class="body">
+        <div id="closeList" class="muted">waiting for positions…</div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn warn" onclick="closeSelected()">Close selected</button>
+          <button class="btn warn" onclick="closeAll()">Close ALL positions</button>
+        </div>
+      </div></div>
+
+      <div class="card"><h3>Withdraw</h3><div class="body">
+        <div class="muted" style="margin-bottom:10px">Send each MCP wallet to its withdraw destination (set them on Wallet States):</div>
+        <div class="row" id="perChainBtns"></div>
+        <div class="muted" style="margin:16px 0 10px">Or consolidate EVERYTHING (bridge + sweep) to one chain:</div>
+        <div class="row">
+          <select id="consolChain"><option>solana</option><option>polygon</option><option>hyperliquid</option></select>
+          <button class="btn warn" onclick="consolidate()">Withdraw everything here</button>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="tab-analytics" class="hidden">
+      <div class="card"><div class="body"><div class="stats">
+        <div class="stat"><div class="k">total value</div><div class="big" id="total">—</div></div>
+        <div class="stat"><div class="k">unrealized P&amp;L</div><div class="big" id="upnl">—</div></div>
+      </div></div></div>
+      <div class="card"><h3>Wallet values</h3><div class="body"><table id="wvTable"></table></div></div>
+      <div class="card"><h3>Open positions</h3><div class="body"><table id="posTable"></table>
+        <div class="note" id="pricing"></div></div></div>
+    </section>
+
+    <!-- WALLETS -->
+    <section id="tab-wallets" class="hidden">
+      <div class="card"><h3>MCP wallets</h3><div class="body"><table id="walTable"></table></div></div>
+      <div class="card"><h3>Withdraw destinations — editable (where funds go)</h3><div class="body">
+        <div class="muted" style="margin-bottom:12px">Paste the wallet each chain withdraws to. Saved locally for the MCP to read; the agent never types it. Verify the commitment against your own wallet.</div>
+        <div id="destRows"></div>
+      </div></div>
+    </section>
+  </main>
+
+  <footer id="foot"></footer>
+
+<script>
+const TOKEN="__STARLING_TOKEN__";
+const CHAINS=["solana","polygon","hyperliquid"];
+const $=s=>document.querySelector(s);
+async function api(path,method="GET",body){
+  const r=await fetch(path,{method,headers:{"X-Starling-Token":TOKEN,"Content-Type":"application/json"},
+    body:body?JSON.stringify(body):undefined});
+  return r.json();
+}
+function short(a){if(!a)return"—";a=String(a);return a.length<=20?a:a.slice(0,8)+"…"+a.slice(-6);}
+function usd(v){return typeof v==="number"?"$"+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+function ago(s){if(s==null)return"never";if(s<0)return"just now";return s<90?Math.round(s)+"s ago":Math.round(s/60)+"m ago";}
+let foot_until=0;
+function toast(msg,color="var(--accent)",secs=6){const f=$("#foot");f.textContent=msg;f.style.color=color;foot_until=Date.now()+secs*1000;}
+
+// tabs
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  for(const t of ["control","analytics","wallets"]) $("#tab-"+t).classList.toggle("hidden",t!==b.dataset.tab);
+});
+
+// per-chain withdraw buttons
+$("#perChainBtns").innerHTML=CHAINS.map(c=>`<button class="btn ghost" onclick="withdrawChain('${c}')">Withdraw ${c}</button>`).join("");
+
+// ---- render ----
+let lastPosSig="", selected=new Set();
+function render(s){
+  $("#ver").textContent="v"+(s.version||"");
+  // heartbeat
+  const hb=$("#hb");
+  if(!s.present){hb.textContent="✕ no heartbeat yet — waiting for the MCP to publish ~/.starling/status.json";hb.style.color="var(--red)";}
+  else if(s.error){hb.textContent="✕ status.json: "+s.error;hb.style.color="var(--red)";}
+  else if(s.live){hb.textContent="● live · "+(s.status.network||"?")+" · updated "+ago(s.age)+(s.status.pid?" · pid "+s.status.pid:"");hb.style.color="var(--green)";}
+  else {hb.textContent="○ stale · MCP last seen "+ago(s.age)+" — is it still running?";hb.style.color="var(--yellow)";}
+  // banner
+  const b=$("#banner");
+  const set=(t,fg,bg)=>{b.textContent=t;b.style.color=fg;b.style.background=bg;};
+  if(s.halted){const ok=s.live&&!s.status.tradingEnabled;set(ok?"TRADING HALTED":"HALTING — kill-switch set…","var(--red)","var(--halt)");}
+  else if(!s.live)set("MCP OFFLINE — no fresh heartbeat","var(--grey)","var(--panel)");
+  else if(s.status.tradingEnabled)set("● TRADING ACTIVE","var(--green)","var(--active)");
+  else set("TRADING DISABLED"+(s.status.haltReason?" — "+s.status.haltReason:""),"var(--yellow)","var(--panel)");
+  // halt button
+  const hbn=$("#haltBtn");
+  if(s.halted){hbn.textContent="▶ Resume trading";hbn.className="btn resume";}
+  else{hbn.textContent="■ Halt all trading";hbn.className="btn danger";}
+
+  const pf=s.status.portfolio||{};
+  const positions=pf.positions||[];
+  const wallets=pf.wallets||[];
+
+  // close list (rebuild only when the position set changes; preserve ticks)
+  const sig=JSON.stringify(positions.map(p=>[p.marketId,p.venue,p.side]));
+  if(sig!==lastPosSig){
+    lastPosSig=sig;
+    const el=$("#closeList");
+    if(!s.status.portfolio){el.innerHTML='<span class="grey">waiting for the MCP to report positions…</span>';}
+    else if(!positions.length){el.innerHTML='<span class="grey">flat — no open positions</span>';}
+    else{
+      el.innerHTML='<table><tbody>'+positions.map(p=>{
+        const mid=p.marketId||"?";const pnl=p.unrealizedPnlUsd;
+        const pc=(pnl>=0)?"green":"red";const pt=(typeof pnl==="number")?(pnl>=0?"+":"")+pnl.toFixed(2):"—";
+        return `<tr><td style="width:24px"><input type="checkbox" data-mid="${mid}" ${selected.has(mid)?"checked":""}></td>
+          <td>${p.venue||""}</td><td class="mono muted">${mid}</td><td class="muted">${p.side||""}</td>
+          <td class="r ${pc} mono">${pt}</td></tr>`;}).join("")+'</tbody></table>';
+      el.querySelectorAll("input[type=checkbox]").forEach(cb=>cb.onchange=()=>{
+        cb.checked?selected.add(cb.dataset.mid):selected.delete(cb.dataset.mid);});
+    }
+  }
+
+  // analytics
+  $("#total").textContent=usd(pf.totalValueUsd);
+  const u=pf.unrealizedPnlUsd;
+  $("#upnl").textContent=(typeof u==="number")?(u>=0?"+":"")+u.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
+  $("#upnl").style.color=(typeof u==="number")?(u>=0?"var(--green)":"var(--red)"):"var(--dim)";
+  $("#wvTable").innerHTML = wallets.length
+    ? "<thead><tr><th>chain</th><th>USDC</th><th>native</th><th class=r>value</th></tr></thead><tbody>"+
+      wallets.map(w=>{const n=w.native||{};return `<tr><td>${w.chain}${w.partial?" ⚠":""}</td>
+        <td class=mono>${(+w.usdc||0).toFixed(2)}</td>
+        <td class=mono>${(+(n.amount||0)).toFixed(4)} ${n.symbol||""}</td>
+        <td class="r mono">${usd(w.valueUsd)}</td></tr>`;}).join("")+"</tbody>"
+    : '<tbody><tr><td class=grey>waiting for balances…</td></tr></tbody>';
+  $("#posTable").innerHTML = positions.length
+    ? "<thead><tr><th>venue</th><th>market</th><th>side</th><th>value</th><th class=r>P&L</th></tr></thead><tbody>"+
+      positions.map(p=>{const pnl=p.unrealizedPnlUsd;const pc=(pnl>=0)?"green":"red";
+        const pt=(typeof pnl==="number")?(pnl>=0?"+":"")+pnl.toFixed(2):"—";
+        return `<tr><td>${p.venue||""}</td><td class="mono muted">${p.marketId||""}</td>
+        <td class=muted>${p.side||""}</td><td class=mono>${usd(p.valueUsd)}</td>
+        <td class="r ${pc} mono">${pt}</td></tr>`;}).join("")+"</tbody>"
+    : (s.status.portfolio?'<tbody><tr><td class=grey>flat — no open positions</td></tr></tbody>'
+                         :'<tbody><tr><td class=grey>positions not reported yet</td></tr></tbody>');
+  $("#pricing").textContent=pf.pricingNote?("ⓘ "+pf.pricingNote):"";
+
+  // wallet states table
+  const venues=s.status.venues||{};
+  const byChain={};wallets.forEach(w=>byChain[w.chain]=w);
+  $("#walTable").innerHTML="<thead><tr><th>chain</th><th>pubkey</th><th class=r>value</th></tr></thead><tbody>"+
+    CHAINS.map(c=>{const info=venues[c]||{};const a=info.address;
+      return `<tr><td class="${info.signerLoaded?"":"grey"}">${c}</td>
+        <td class="mono clip" title="click to copy" onclick="copy('${a||""}','${c}')">${short(a)}</td>
+        <td class="r mono">${usd((byChain[c]||{}).valueUsd)}</td></tr>`;}).join("")+"</tbody>";
+
+  // editable destinations
+  const dests=(s.status.withdrawDestinations||{}).byChain||{};
+  renderDest(s.treasury||{},dests);
+}
+
+let destBuilt=false;
+function renderDest(pinned,dests){
+  const host=$("#destRows");
+  if(!destBuilt){
+    host.innerHTML=CHAINS.map(c=>`
+      <div class="destrow">
+        <span>${c}</span>
+        <input class="addr" id="addr-${c}" placeholder="paste ${c} withdraw address" oninput="validateDest('${c}')">
+        <button class="btn ghost" onclick="saveDest('${c}')">Save</button>
+        <button class="btn ghost" onclick="clearDest('${c}')">Clear</button>
+      </div>
+      <div class="note" id="note-${c}"></div>`).join("");
+    destBuilt=true;
+    // prefill once from the pinned file
+    for(const c of CHAINS){if(pinned[c])$("#addr-"+c).value=pinned[c];}
+  }
+  // update the MCP-resolved note when the field isn't being edited
+  for(const c of CHAINS){
+    const inp=$("#addr-"+c), note=$("#note-"+c);
+    if(document.activeElement===inp) continue;
+    const d=dests[c];
+    if(d&&d.address){
+      const col=d.source==="conflict"?"var(--red)":(["dashboard","keystore"].includes(d.source)?"var(--green)":"var(--dim)");
+      note.textContent=`MCP sees: ${d.source}  commitment ${d.commitment||"—"}`;note.style.color=col;
+    }else if(!inp.value.trim()){
+      note.textContent="no destination set — withdraws refused until you save one";note.style.color="var(--yellow)";
+    }
+  }
+}
+
+// ---- live address validation ----
+const vTimers={};
+function validateDest(c){
+  clearTimeout(vTimers[c]);
+  vTimers[c]=setTimeout(async()=>{
+    const v=$("#addr-"+c).value.trim();const note=$("#note-"+c);
+    if(!v){note.textContent="";return;}
+    const r=await api("/api/validate?chain="+c+"&address="+encodeURIComponent(v));
+    if(r.valid){note.textContent=`valid ✓  commitment ${r.commitment} — verify vs your wallet`;note.style.color="var(--green)";}
+    else{note.textContent=`not a valid ${c} address yet`;note.style.color="var(--red)";}
+  },250);
+}
+
+// ---- actions ----
+async function toggleHalt(){
+  const s=await api("/api/state");
+  if(s.halted){if(!confirm("Remove the kill-switch and let the agent trade again?"))return;
+    await api("/api/resume","POST");toast("resuming — kill-switch cleared","var(--green)",5);}
+  else{await api("/api/halt","POST",{reason:"manual"});toast("HALT set — agent must stop signing.","var(--red)",8);}
+}
+async function trackCmd(label,res){
+  if(!res.ok){toast(label+" → error: "+(res.error||""),"var(--red)",8);return;}
+  toast(label+" queued — waiting for the MCP…","var(--accent)",30);
+  const id=res.id;let tries=0;
+  const iv=setInterval(async()=>{
+    const a=await api("/api/ack?id="+id);tries++;
+    if(a.pending){if(tries>40){clearInterval(iv);}return;}
+    clearInterval(iv);
+    const ok=a.status==="ok";toast(`${label} → ${a.status}: ${a.message||""}`,ok?"var(--green)":"var(--red)",10);
+  },1000);
+}
+async function closeAll(){if(!confirm("Market-close EVERY open position across all venues now? This cannot be undone."))return;
+  trackCmd("close_all",await api("/api/command","POST",{action:"close_all"}));}
+async function closeSelected(){const ids=[...selected];if(!ids.length){alert("Tick the positions you want to close first.");return;}
+  if(!confirm("Market-close these positions now?\n\n"+ids.join("\n")))return;
+  trackCmd("close ("+ids.length+")",await api("/api/command","POST",{action:"close_all",args:{marketIds:ids}}));}
+async function withdrawChain(c){
+  const s=await api("/api/state");const dest=(s.treasury||{})[c];
+  if(!dest){alert("Set a "+c+" withdraw destination first (Wallet States tab).");return;}
+  if(!confirm("Sweep the "+c+" MCP wallet to:\n\n"+dest+"\n\nProceed?"))return;
+  trackCmd("withdraw "+c,await api("/api/command","POST",{action:"withdraw",args:{mode:"per_chain",chain:c}}));}
+async function consolidate(){
+  const to=$("#consolChain").value;const s=await api("/api/state");const dest=(s.treasury||{})[to];
+  if(!dest){alert("Set a "+to+" withdraw destination first (Wallet States tab).");return;}
+  if(!confirm("Close positions, bridge every chain's funds to "+to+", and sweep to:\n\n"+dest+"\n\nThis can take several minutes. Proceed?"))return;
+  trackCmd("consolidate→"+to,await api("/api/command","POST",{action:"withdraw",args:{mode:"consolidate",toChain:to}}));}
+async function saveDest(c){
+  const v=$("#addr-"+c).value.trim();if(!v){alert("Paste an address first.");return;}
+  const chk=await api("/api/validate?chain="+c+"&address="+encodeURIComponent(v));
+  if(!chk.valid){alert("That isn't a valid "+c+" address.");return;}
+  if(!confirm(`Pin this as the ${c} withdraw destination?\n\n${chk.normalized}\n\ncommitment ${chk.commitment}\n\nVerify the commitment against your wallet.`))return;
+  const r=await api("/api/treasury","POST",{chain:c,address:v});
+  if(r.ok)toast(`pinned ${c} → ${short(r.normalized)}`,"var(--green)",6);else toast("save failed: "+(r.error||""),"var(--red)",6);
+}
+async function clearDest(c){
+  if(!confirm("Clear the "+c+" withdraw destination? Withdraws on "+c+" will be refused until you set one again."))return;
+  await api("/api/treasury/clear","POST",{chain:c});$("#addr-"+c).value="";$("#note-"+c).textContent="";toast("cleared "+c,"var(--dim)",4);
+}
+function copy(a,c){if(!a)return;navigator.clipboard.writeText(a);toast("copied "+c+" address","var(--accent)",2);}
+
+// ---- poll loop ----
+async function poll(){
+  try{const s=await api("/api/state");render(s);}catch(e){$("#hb").textContent="✕ dashboard server unreachable";$("#hb").style.color="var(--red)";}
+  if(foot_until&&Date.now()>foot_until){$("#foot").textContent="";foot_until=0;}
+  setTimeout(poll,1000);
+}
+poll();
+</script>
+</body>
+</html>

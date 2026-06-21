@@ -1,19 +1,16 @@
 [project]
 name = "starling-dashboard"
-version = "0.1.0"
-description = "Watch your Starling trading agent live — an open example desktop dashboard for the Starling MCP."
+version = "0.2.0"
+description = "A local web dashboard for the Starling MCP — watch and control your trading agent from your browser."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 keywords = ["mcp", "trading-agent", "dashboard", "starling", "hyperliquid", "polymarket", "solana"]
-dependencies = [
-  "mcp>=1.0",
-  "rich>=13.0",
-]
+# Zero third-party dependencies — pure Python standard library.
+dependencies = []
 
 [project.scripts]
 starling-dashboard = "starling_dashboard.__main__:main"
-starling-dashboard-gui = "starling_dashboard.gui:main"
 
 [project.urls]
 Homepage = "https://github.com/thedopetoad/Starling-Agent-Dashboard"
@@ -26,3 +23,5 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["starling_dashboard"]
+# Ship the single-page app bundled inside the package.
+artifacts = ["starling_dashboard/static/*"]

@@ -1,8 +1,9 @@
-"""Starling Agent Dashboard — watch your trading agent live on your desktop.
+"""Starling Agent Dashboard — a local web UI for a running Starling MCP.
 
-A small, open example that connects to the Starling MCP
-(https://github.com/thedopetoad/Starling-MCP) over stdio and renders its live
-state. Fork it, embed it, extend it as the MCP grows new analytics tools.
+A tiny stdlib-only local server (127.0.0.1) serves a single-page app that watches
+and controls a live Starling MCP (https://github.com/thedopetoad/Starling-MCP)
+through the file control plane in ``~/.starling/`` — it never holds keys or signs.
+Run it with ``python -m starling_dashboard`` (or the ``run-dashboard`` launchers).
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
