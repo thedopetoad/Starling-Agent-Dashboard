@@ -153,6 +153,16 @@ async function api(path,method="GET",body){
 }
 function short(a){if(!a)return"—";a=String(a);return a.length<=20?a:a.slice(0,8)+"…"+a.slice(-6);}
 function usd(v){return typeof v==="number"?"$"+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+function tokenCell(w){
+  const ts=(w.tokens||[]).filter(t=>(+t.amount)>0);
+  if(!ts.length) return '<span class=grey>—</span>';
+  return ts.map(t=>{
+    const amt=(+t.amount).toLocaleString(undefined,{maximumFractionDigits:8});
+    const val=(typeof t.usd==="number")?(" ≈ "+usd(t.usd)):' <span class=grey>(unpriced)</span>';
+    const loc=(t.location==="order")?' <span class=grey>(in order)</span>':"";
+    return `<div>${amt} ${t.symbol||""}${val}${loc}</div>`;
+  }).join("");
+}
 function ago(s){if(s==null)return"never";if(s<0)return"just now";return s<90?Math.round(s)+"s ago":Math.round(s/60)+"m ago";}
 let foot_until=0;
 function toast(msg,color="var(--accent)",secs=6){const f=$("#foot");f.textContent=msg;f.style.color=color;foot_until=Date.now()+secs*1000;}
@@ -214,9 +224,10 @@ function render(s){
   $("#upnl").textContent=(typeof u==="number")?(u>=0?"+":"")+u.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
   $("#upnl").style.color=(typeof u==="number")?(u>=0?"var(--green)":"var(--red)"):"var(--dim)";
   $("#wvTable").innerHTML = wallets.length
-    ? "<thead><tr><th>chain</th><th>USDC</th><th>native</th><th class=r>value</th></tr></thead><tbody>"+
+    ? "<thead><tr><th>chain</th><th>USDC</th><th>tokens</th><th>native</th><th class=r>value</th></tr></thead><tbody>"+
       wallets.map(w=>{const n=w.native||{};return `<tr><td>${w.chain}${w.partial?" ⚠":""}</td>
         <td class=mono>${(+w.usdc||0).toFixed(2)}</td>
+        <td class=mono>${tokenCell(w)}</td>
         <td class=mono>${(+(n.amount||0)).toFixed(4)} ${n.symbol||""}</td>
         <td class="r mono">${usd(w.valueUsd)}</td></tr>`;}).join("")+"</tbody>"
     : '<tbody><tr><td class=grey>waiting for balances…</td></tr></tbody>';
