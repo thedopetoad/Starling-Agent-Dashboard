@@ -109,12 +109,12 @@
         </div>
       </div></div>
 
-      <div class="card"><h3>Withdraw all funds</h3><div class="body">
-        <div class="muted" style="margin-bottom:10px">Close any open positions, bridge every chain's USDC to the chosen chain, and send it to the withdrawal wallet you pinned there (Wallet States):</div>
+      <div class="card"><h3>Withdraw</h3><div class="body">
+        <div class="muted" style="margin-bottom:10px">Send a chain's MCP wallet to your withdrawal wallet on that same chain (set addresses on Wallet States):</div>
         <div class="row">
-          <button class="btn warn" onclick="withdrawAllTo('solana')">Withdraw all → Solana</button>
-          <button class="btn warn" onclick="withdrawAllTo('polygon')">Withdraw all → Polygon</button>
-          <button class="btn warn" onclick="withdrawAllTo('hyperliquid')">Withdraw all → Hyperliquid</button>
+          <button class="btn warn" onclick="withdrawChain('solana')">Solana → your wallet</button>
+          <button class="btn warn" onclick="withdrawChain('polygon')">Polygon → your wallet</button>
+          <button class="btn warn" onclick="withdrawChain('hyperliquid')">Hyperliquid → your wallet</button>
         </div>
       </div></div>
     </section>
@@ -311,11 +311,11 @@ async function closeAll(){if(!confirm("Market-close EVERY open position across a
 async function closeSelected(){const ids=[...selected];if(!ids.length){alert("Tick the positions you want to close first.");return;}
   if(!confirm("Market-close these positions now?\n\n"+ids.join("\n")))return;
   trackCmd("close ("+ids.length+")",await api("/api/command","POST",{action:"close_all",args:{marketIds:ids}}));}
-async function withdrawAllTo(to){
-  const s=await api("/api/state");const dest=(s.treasury||{})[to];
-  if(!dest){alert("Set a "+to+" withdrawal address first (Wallet States tab), so the MCP knows where to send funds.");return;}
-  if(!confirm("Withdraw ALL funds to your "+to+" wallet?\n\nThis closes any open positions, bridges every chain's USDC to "+to+", and sends it to:\n\n"+dest+"\n\nCross-chain bridges take a few minutes. Proceed?"))return;
-  trackCmd("withdraw all→"+to,await api("/api/command","POST",{action:"withdraw",args:{mode:"consolidate",toChain:to}}));}
+async function withdrawChain(c){
+  const s=await api("/api/state");const dest=(s.treasury||{})[c];
+  if(!dest){alert("Set a "+c+" withdrawal address first (Wallet States tab), so the MCP knows where to send funds.");return;}
+  if(!confirm("Withdraw the "+c+" wallet to:\n\n"+dest+"\n\nProceed?"))return;
+  trackCmd("withdraw "+c,await api("/api/command","POST",{action:"withdraw",args:{mode:"per_chain",chain:c}}));}
 async function saveDest(c){
   const v=$("#addr-"+c).value.trim();if(!v){alert("Paste an address first.");return;}
   const chk=await api("/api/validate?chain="+c+"&address="+encodeURIComponent(v));
