@@ -79,12 +79,44 @@ class Status:
         return self.raw.get("venues", {}) or {}
 
     @property
+    def portfolio(self) -> dict[str, Any]:
+        """The RPC-backed portfolio block the MCP publishes (balances, positions,
+        wallet values, totals). Empty dict if this MCP build doesn't report it."""
+        p = self.raw.get("portfolio")
+        return p if isinstance(p, dict) else {}
+
+    @property
     def positions(self) -> list[dict[str, Any]]:
+        # Prefer the richer portfolio.positions; fall back to a top-level list.
+        pf = self.portfolio.get("positions")
+        if isinstance(pf, list):
+            return pf
         p = self.raw.get("positions")
         return p if isinstance(p, list) else []
 
     @property
+    def wallets(self) -> list[dict[str, Any]]:
+        w = self.portfolio.get("wallets")
+        return w if isinstance(w, list) else []
+
+    @property
+    def total_value_usd(self) -> float | None:
+        v = self.portfolio.get("totalValueUsd")
+        return float(v) if isinstance(v, (int, float)) else None
+
+    @property
+    def withdraw_destinations(self) -> dict[str, Any]:
+        """The resolved per-chain withdraw destinations (source: keystore/dashboard/
+        conflict) the MCP reports. Empty dict if not reported."""
+        w = self.raw.get("withdrawDestinations")
+        return w if isinstance(w, dict) else {}
+
+    @property
     def pnl(self) -> dict[str, Any]:
+        # Unified accessor: portfolio.unrealizedPnlUsd wins, else a legacy pnl block.
+        u = self.portfolio.get("unrealizedPnlUsd")
+        if isinstance(u, (int, float)):
+            return {"unrealized": float(u)}
         return self.raw.get("pnl", {}) or {}
 
 
