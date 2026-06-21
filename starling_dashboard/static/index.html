@@ -175,7 +175,7 @@ function render(s){
   const hb=$("#hb");
   if(!s.present){hb.textContent="✕ no heartbeat yet — waiting for the MCP to publish ~/.starling/status.json";hb.style.color="var(--red)";}
   else if(s.error){hb.textContent="✕ status.json: "+s.error;hb.style.color="var(--red)";}
-  else if(s.live){hb.textContent="● live · "+(s.status.network||"?")+" · updated "+ago(s.age)+(s.status.pid?" · pid "+s.status.pid:"");hb.style.color="var(--green)";}
+  else if(s.live){const cmds=s.status.executeArmed?" · cmds ARMED":" · cmds dry-run";hb.textContent="● live · "+(s.status.network||"?")+" · updated "+ago(s.age)+cmds+(s.status.pid?" · pid "+s.status.pid:"");hb.style.color="var(--green)";}
   else {hb.textContent="○ stale · MCP last seen "+ago(s.age)+" — is it still running?";hb.style.color="var(--yellow)";}
   // banner
   const b=$("#banner");
