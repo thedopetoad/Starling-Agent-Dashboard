@@ -128,6 +128,7 @@
       <div class="card"><h3>Wallet values</h3><div class="body"><table id="wvTable"></table></div></div>
       <div class="card"><h3>Open positions</h3><div class="body"><table id="posTable"></table>
         <div class="note" id="pricing"></div></div></div>
+      <div class="card"><h3>Open orders</h3><div class="body"><table id="ordTable"></table></div></div>
     </section>
 
     <!-- WALLETS -->
@@ -241,6 +242,13 @@ function render(s){
     : (s.status.portfolio?'<tbody><tr><td class=grey>flat — no open positions</td></tr></tbody>'
                          :'<tbody><tr><td class=grey>positions not reported yet</td></tr></tbody>');
   $("#pricing").textContent=pf.pricingNote?("ⓘ "+pf.pricingNote):"";
+  const orders=pf.orders||[];
+  $("#ordTable").innerHTML = orders.length
+    ? "<thead><tr><th>venue</th><th>order</th><th class=r>limit price</th></tr></thead><tbody>"+
+      orders.map(o=>`<tr><td>${o.venue||""} ${o.kind||""}</td>
+        <td class="mono">${o.description||o.orderId||""}</td>
+        <td class="r mono">${o.limitPrice!=null?usd(o.limitPrice):"—"}</td></tr>`).join("")+"</tbody>"
+    : (s.status.portfolio?'<tbody><tr><td class=grey>no open orders</td></tr></tbody>':'<tbody><tr><td class=grey>orders not reported yet</td></tr></tbody>');
 
   // wallet states table
   const venues=s.status.venues||{};
